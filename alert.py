@@ -3,6 +3,7 @@
 import requests
 import yagmail
 from bs4 import BeautifulSoup as bs
+import datetime
 
 def main():
 
@@ -11,23 +12,29 @@ def main():
     password="odxubsrpeliikrlu"
 
     subject = 'PARTS IN STOCK'
-    url="https://carbonfiberhoods.com/modelodrive-frp-ori-t3-50mm-fenders-front-gt-nissan-240sx-s14-1995-1996-113160.html"
-    request = requests.get(url)
-    soup = bs(request.text,"html.parser")
-    #print(soup.text)
-    if "Out of stock" in soup.text:
-        print("boi")
-   # for line in soup:
-    #  print(line)
-      
+    urllist=[]
 
-
-
-    content = ['mail body content']
-
-   # with yagmail.SMTP(sender, password) as yag:
-    #    yag.send(receiver, subject, content)
-    #    print('Sent email successfully')
+    url=""
+    while 1:
+        dt=datetime.datetime.now()
+        url=input("add a url: ")
+        if url:
+            urllist.append(url)
+            url=""
+        else:
+            print("empty")
+        if urllist and dt.hour==12:
+            for i in urllist:
+                request = requests.get(i)
+                soup = bs(request.text,"html.parser")
+                if "Out of stock" in soup.text:
+                    continue
+                else:
+                    content = ['A Car part is in stock.\n Link is attached',i]
+                    with yagmail.SMTP(sender, password) as yag:
+                        yag.send(receiver, subject, content)
+                        print('Sent email successfully')
+                    urllist.remove(i)
 
 if __name__ == "__main__":
     main()
